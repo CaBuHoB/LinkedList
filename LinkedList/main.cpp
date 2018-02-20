@@ -1,6 +1,5 @@
 #include "LinkedList.h"
 
-#include <stdlib.h>
 #include <random>
 #include <ctime>
 
@@ -11,8 +10,8 @@ int main () {
     try {
         for (int i = 0; i < 10; i++)
             myLinkedList.push_back (reinterpret_cast<int &&>(i));
-        for (int i = 0; i < 9; i++)
-            myLinkedList.pop_back ();
+        /*for (int i = 0; i < 9; i++)
+            myLinkedList.pop_back ();*/
 
         for (int i = 0; i < 10; i++)
             myLinkedList.push_back (reinterpret_cast<int &&>(i));
