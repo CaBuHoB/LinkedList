@@ -10,31 +10,24 @@ private:
 
     struct Node {
         T value;
-        std::shared_ptr<Node> next;
-        std::shared_ptr<Node> prev;
+        std::unique_ptr<Node> next = nullptr;
+        Node *prev = nullptr;
     };
 
-    std::shared_ptr<Node> head;
-    std::shared_ptr<Node> end;
-    size_t size;
+    std::unique_ptr<Node> head = nullptr;
+    Node *end = nullptr;
+    size_t size = 0;
 
 public:
-    LinkedList () {
-        head = nullptr;
-        end = nullptr;
-        size = 0;
-    }
+    LinkedList () = default;
 
-    LinkedList (LinkedList &&obj) {
+    LinkedList (LinkedList &obj) {
         size = obj.size;
         for (int i = 0; i < size; i++)
-            push_back (forward (obj[i]));
+            push_back (std::forward (obj[i]));
     }
 
     LinkedList (std::initializer_list<T> list) {
-        head = nullptr;
-        end = nullptr;
-        size = 0;
         for (const auto &&i : list)
             this->push_back (i);
     }
@@ -55,9 +48,9 @@ public:
         if (index >= size || index < 0)
             throw std::out_of_range ("Error! Out of list! operator[]");
 
-        std::shared_ptr<Node> search = head;
+        Node *search = head.get ();
         for (size_t i = 0; i < index; i++)
-            search = search->next;
+            search = search->next.get ();
 
         return search->value;
     }
@@ -66,9 +59,9 @@ public:
         if (index >= size || index < 0)
             throw std::out_of_range ("Error! Out of list! operator[]");
 
-        std::shared_ptr<Node> search = head;
+        Node *search = head.get ();
         for (size_t i = 0; i < index; i++)
-            search = search->next;
+            search = search->next.get ();
 
         return search->value;
     }
@@ -89,14 +82,15 @@ public:
     }
 
 
-    void push_front (T &&val) {
+    void push_front (T val) {
         if (size == 0) {
-            head = std::shared_ptr<Node> (new Node ({ forward (val), nullptr, nullptr }));
-            end = head;
+            head = std::unique_ptr<Node> (new Node ({ val, nullptr, nullptr }));
+            end = head.get ();
         } else {
-            std::shared_ptr<Node> newHead (new Node ({ forward (val), head, nullptr }));
-            head->prev = newHead;
-            head = newHead;
+            std::unique_ptr<Node> newHead (new Node ({ val, std::move (head), nullptr }));
+            head = std::move (newHead);
+            head->next->prev = newHead.get ();
+
         }
         size++;
     }
@@ -107,24 +101,25 @@ public:
 
         if (size == 1) {
             head.reset ();
-            end = head = nullptr;
+            end = nullptr;
+            head = nullptr;
         } else {
-            std::shared_ptr<Node> oldHead = head;
-            head = head->next;
+            std::unique_ptr<Node> oldHead = std::move (head);
+            head = std::move (oldHead->next);
             head->prev = nullptr;
         }
         size--;
     }
 
 
-    void push_back (T &&val) {
+    void push_back (T val) {
         if (size == 0) {
-            head = std::shared_ptr<Node> (new Node { forward (val), nullptr, nullptr });
-            end = head;
+            head = std::unique_ptr<Node> (new Node { val, nullptr, nullptr });
+            end = head.get ();
         } else {
-            std::shared_ptr<Node> newEnd (new Node { forward (val), nullptr, end });
-            end->next = newEnd;
-            end = newEnd;
+            std::unique_ptr<Node> newEnd (new Node { val, nullptr, end });
+            end->next = std::move (newEnd);
+            end = end->next.get ();
         }
         size++;
     }
@@ -135,10 +130,9 @@ public:
 
         if (size == 1) {
             head.reset ();
-            end.reset ();
-            end = head = nullptr;
+            end = nullptr;
+            head = nullptr;
         } else {
-            std::shared_ptr<Node> oldEnd = end;
             end = end->prev;
             end->next = nullptr;
         }
@@ -146,23 +140,22 @@ public:
     }
 
 
-    void insert (size_t pos, T &&val) {
+    void insert (size_t pos, T val) {
         if (pos >= size || pos < 0)
             throw std::out_of_range ("Error! Out of list! Insert");
 
         if (pos == 0) {
-            push_front (forward (val));
+            push_front (val);
             return;
         }
 
-        std::shared_ptr<Node> before = head;
+        Node *before = head.get ();
         for (size_t i = 1; i < pos; i++)
-            before = before->next;
-        std::shared_ptr<Node> after = before->next;
+            before = before->next.get ();
 
-        std::shared_ptr<Node> newValue (new Node ({ forward (val), after, before }));
-        before->next = newValue;
-        after->prev = newValue;
+        std::unique_ptr<Node> newValue (new Node ({ val, std::move (before->next), before }));/////////////
+        before->next = std::move (newValue);
+        before->next->next->prev = newValue.get ();
 
         size++;
     }
@@ -180,20 +173,14 @@ public:
             return;
         }
 
-        std::shared_ptr<Node> before = head;
+        Node *before = head.get ();
         for (size_t i = 1; i < pos; i++)
-            before = before->next;
-        std::shared_ptr<Node> forDelete = before->next;
+            before = before->next.get ();
 
         before->next->next->prev = before;
-        before->next = before->next->next;
+        before->next = std::move (before->next->next);
 
-        size = size - 1;
-    }
-
-private:
-    T &&forward (typename std::remove_reference<T>::type &t) noexcept {
-        return static_cast<T &&>(t);
+        size--;
     }
 };
 

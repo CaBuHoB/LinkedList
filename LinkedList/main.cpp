@@ -9,15 +9,19 @@ int main () {
 
     try {
         for (int i = 0; i < 10; i++)
-            myLinkedList.push_back (reinterpret_cast<int &&>(i));
+            myLinkedList.push_back (i);
+
         for (int i = 0; i < 9; i++)
             myLinkedList.pop_back ();
 
         for (int i = 0; i < 10; i++)
-            myLinkedList.push_back (reinterpret_cast<int &&>(i));
+            myLinkedList.push_back (i);
 
+        std::uniform_int_distribution unfFirst(10, 50);
+        int size = myLinkedList.get_size () - 1;
+        std::uniform_int_distribution unfSecond(0, size);
         for (int i = 0; i < 10; i++)
-            myLinkedList.insert (gen () % myLinkedList.get_size (), gen () % 40 + 11);
+            myLinkedList.insert (unfSecond(gen), unfFirst(gen));
 
         myLinkedList.erase (8);
 
