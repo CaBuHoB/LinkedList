@@ -24,7 +24,7 @@ public:
     LinkedList (LinkedList &obj) {
         size = obj.size;
         for (int i = 0; i < size; i++)
-            push_back (std::forward (obj[i]));
+            push_back (obj[i]);
     }
 
     LinkedList (std::initializer_list<T> list) {
@@ -82,7 +82,7 @@ public:
     }
 
 
-    void push_front (T val) {
+    void push_front (const T &val) {
         if (size == 0) {
             head = std::unique_ptr<Node> (new Node ({ val, nullptr, nullptr }));
             end = head.get ();
@@ -112,7 +112,7 @@ public:
     }
 
 
-    void push_back (T val) {
+    void push_back (const T &val) {
         if (size == 0) {
             head = std::unique_ptr<Node> (new Node { val, nullptr, nullptr });
             end = head.get ();
@@ -140,7 +140,7 @@ public:
     }
 
 
-    void insert (size_t pos, T val) {
+    void insert (size_t pos, const T &val) {
         if (pos >= size || pos < 0)
             throw std::out_of_range ("Error! Out of list! Insert");
 
