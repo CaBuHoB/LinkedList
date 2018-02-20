@@ -27,7 +27,7 @@ public:
             push_back (obj[i]);
     }
 
-    LinkedList (std::initializer_list<T> list) {
+    LinkedList (std::initializer_list<T> &list) {
         for (const auto &&i : list)
             this->push_back (i);
     }
