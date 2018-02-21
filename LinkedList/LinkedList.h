@@ -12,6 +12,12 @@ private:
         T value;
         std::unique_ptr<Node> next = nullptr;
         Node *prev = nullptr;
+
+        Node (const T &value, std::unique_ptr<Node> next, Node *prev) {
+            this->value = value;
+            this->next = std::move (next);
+            this->prev = prev;
+        }
     };
 
     std::unique_ptr<Node> head = nullptr;
@@ -21,13 +27,13 @@ private:
 public:
     LinkedList () = default;
 
-    LinkedList (LinkedList &obj) {
+    LinkedList (const LinkedList &obj) {
         size = obj.size;
         for (int i = 0; i < size; i++)
             push_back (obj[i]);
     }
 
-    LinkedList (std::initializer_list<T> list) {
+    LinkedList (std::initializer_list<T> &list) {
         for (const auto &&i : list)
             this->push_back (i);
     }
@@ -84,12 +90,11 @@ public:
 
     void push_front (const T &val) {
         if (size == 0) {
-            head = std::unique_ptr<Node> (new Node ({ val, nullptr, nullptr }));
+            head = std::make_unique<Node> (val, nullptr, nullptr);
             end = head.get ();
         } else {
-            std::unique_ptr<Node> newHead (new Node ({ val, std::move (head), nullptr }));
-            head = std::move (newHead);
-            head->next->prev = newHead.get ();
+            head = std::make_unique<Node> (val, std::move (head), nullptr);
+            head->next->prev = head.get ();
 
         }
         size++;
@@ -100,12 +105,10 @@ public:
             return;//throw std::out_of_range ("The list is empty!");
 
         if (size == 1) {
-            head.reset ();
             end = nullptr;
             head = nullptr;
         } else {
-            std::unique_ptr<Node> oldHead = std::move (head);
-            head = std::move (oldHead->next);
+            head = std::move (head->next);
             head->prev = nullptr;
         }
         size--;
@@ -114,11 +117,10 @@ public:
 
     void push_back (const T &val) {
         if (size == 0) {
-            head = std::unique_ptr<Node> (new Node { val, nullptr, nullptr });
+            head = std::make_unique<Node> (val, nullptr, nullptr);
             end = head.get ();
         } else {
-            std::unique_ptr<Node> newEnd (new Node { val, nullptr, end });
-            end->next = std::move (newEnd);
+            end->next = std::make_unique<Node> (val, nullptr, end);
             end = end->next.get ();
         }
         size++;
@@ -129,7 +131,6 @@ public:
             return;//throw std::out_of_range ("The list is empty!";
 
         if (size == 1) {
-            head.reset ();
             end = nullptr;
             head = nullptr;
         } else {
@@ -153,9 +154,8 @@ public:
         for (size_t i = 1; i < pos; i++)
             before = before->next.get ();
 
-        std::unique_ptr<Node> newValue (new Node ({ val, std::move (before->next), before }));/////////////
-        before->next = std::move (newValue);
-        before->next->next->prev = newValue.get ();
+        before->next = std::make_unique<Node> (val, std::move (before->next), before);
+        before->next->next->prev = before->next.get ();
 
         size++;
     }
