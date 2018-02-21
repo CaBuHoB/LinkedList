@@ -34,10 +34,8 @@ int main () {
         std::cout << ex.what () << std::endl;
     }
 
-    LinkedList<int> my = myLinkedList;
+    LinkedList<int> my(myLinkedList);
     my = myLinkedList;
-    for (size_t i = 0; i < my.get_size (); i++)
-        std::cout << my[i] << std::endl;
 
     return 0;
 }
