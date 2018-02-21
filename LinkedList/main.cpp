@@ -28,10 +28,16 @@ int main () {
 
         for (size_t i = 0; i < myLinkedList.get_size (); i++)
             std::cout << myLinkedList[i] << std::endl;
+        std::cout << "\n\n";
     }
     catch (std::exception &ex) {
         std::cout << ex.what () << std::endl;
     }
+
+    LinkedList<int> my = myLinkedList;
+    my = myLinkedList;
+    for (size_t i = 0; i < my.get_size (); i++)
+        std::cout << my[i] << std::endl;
 
     return 0;
 }

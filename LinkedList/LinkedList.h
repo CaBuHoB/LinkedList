@@ -28,12 +28,18 @@ public:
     LinkedList () = default;
 
     LinkedList (const LinkedList &obj) {
-        size = obj.size;
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < obj.size; i++)
             push_back (obj[i]);
     }
 
-    LinkedList (std::initializer_list<T> &list) {
+    LinkedList (LinkedList &&obj) {
+        size = std::move(obj.size);
+        head = std::move (obj.head);
+        end = obj.end;
+        obj.end = nullptr;
+    }
+
+    LinkedList (std::initializer_list<T> list) {
         for (const auto &&i : list)
             this->push_back (i);
     }
@@ -181,6 +187,43 @@ public:
         before->next = std::move (before->next->next);
 
         size--;
+    }
+
+    LinkedList& operator= (const LinkedList &obj){
+        if(this == &obj)
+            return *this;
+
+        auto newHead = std::move (head);
+        while (newHead != nullptr) {
+            newHead = std::move (newHead->next);
+            size--;
+        }
+
+        Node *headObj = obj.head.get ();
+        while(headObj != nullptr){
+            push_back (headObj->value);
+            headObj = headObj->next.get ();
+        }
+
+        return *this;
+    }
+
+    LinkedList& operator= (LinkedList &&obj){
+        if(this == &obj)
+            return *this;
+
+        auto newHead = std::move (head);
+        while (newHead != nullptr) {
+            newHead = std::move (newHead->next);
+            size--;
+        }
+
+        size = std::move(obj.size);
+        head = std::move (obj.head);
+        end = obj.end;
+        obj.end = nullptr;
+
+        return *this;
     }
 };
 
