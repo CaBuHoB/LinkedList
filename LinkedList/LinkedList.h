@@ -28,8 +28,11 @@ public:
     LinkedList () = default;
 
     LinkedList (const LinkedList &obj) {
-        for (int i = 0; i < obj.size; i++)
-            push_back (obj[i]);
+        Node *node = obj.head.get ();
+        while(node != nullptr){
+            push_back (node->value);
+            node = node->next.get ();
+        }
     }
 
     LinkedList (LinkedList &&obj) {
@@ -100,7 +103,6 @@ public:
         } else {
             head = std::make_unique<Node> (val, std::move (head), nullptr);
             head->next->prev = head.get ();
-
         }
         size++;
     }
