@@ -118,6 +118,7 @@ public:
             head = std::move (head->next);
             head->prev = nullptr;
         }
+
         size--;
     }
 
